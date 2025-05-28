@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PO Table System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #fafafa;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    #modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 100px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    #modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 20px 30px;
+      border-radius: 8px;
+      border: 1px solid #888;
+      width: 400px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    #close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #888;
+      transition: color 0.2s ease;
+    }
+    #close:hover {
+      color: #000;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    #submitBtn {
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+    #submitBtn:hover {
+      background-color: #218838;
+    }
+.filter-container {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.filter-container label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #555;
+}
+
+.filter-container input[type="date"] {
+  padding: 4px 6px;
+  font-size: 14px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background: transparent;
+  outline-offset: 2px;
+  transition: border-color 0.2s ease;
+}
+
+.filter-container input[type="date"]:focus {
+  border-bottom-color: #555;
+  background: transparent;
+  outline: none;
+}
+
+.filter-container button {
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  transition: color 0.2s ease;
+}
+
+.filter-container button:hover {
+  color: #222;
+  text-decoration: underline;
+}
+
+
+
+  </style>
+</head>
+<body>
+
+  <h1>Purchase Order Records</h1>
+
+  <button id="openModalBtn" aria-haspopup="dialog" aria-controls="modal">Add New PO</button>
+<div class="filter-container">
+  <label for="filterDate">Filter by Issuance Date:</label>
+  <input type="date" id="filterDate" />
+  <button id="filterBtn">Filter</button>
+  <button id="clearFilterBtn">Clear Filter</button>
+</div>
+
+
+  <table id="poTable" aria-describedby="poTableCaption">
+    <caption id="poTableCaption" style="text-align:left; font-weight:bold; margin-bottom: 8px;">List of Purchase Orders</caption>
+    <thead>
+      <tr>
+        <th scope="col">PO#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Date of Issuance</th>
+        <th scope="col">Plate No.</th>
+        <th scope="col">Planned Return Date</th>
+        <th scope="col">Actual Return Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- New rows will be added here -->
+    </tbody>
+  </table>
+  
+
+  <!-- Modal -->
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
+    <div id="modal-content">
+      <span id="close" role="button" aria-label="Close modal">&times;</span>
+      <h2 id="modalTitle">Add PO Entry</h2>
+      <form id="poForm">
+        <label for="po">PO#</label>
+        <input type="text" id="po" name="po" required autocomplete="off">
+
+        <label for="name">Name</label>
+        <select id="name" name="name" required>
+          <option value="" disabled selected>Select Name</option>
+          <option value="Driver 1" data-email="jabatatayo21@gmail.com">Driver 1</option>
+          <option value="Driver 2" data-email="maria@example.com">Driver 2</option>
+          <option value="Driver 3" data-email="pedro@example.com">Driver 3</option>
+        </select>
+
+        <label for="issuance">Date of Issuance</label>
+        <input type="date" id="issuance" name="issuance" required>
+
+        <label for="plate">Plate No.</label>
+        <input type="text" id="plate" name="plate" required autocomplete="off">
+
+        <label for="plannedReturnDate">Planned Return Date</label>
+        <input type="date" id="plannedReturnDate" name="plannedReturnDate" required>
+
+        <label for="actualReturnDate">Actual Return Date</label>
+        <input type="date" id="actualReturnDate" name="actualReturnDate">
+
+        <button type="submit" id="submitBtn">Add to Table</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+// Initialize EmailJS
+emailjs.init("tSIk70XD7Rqfn0RIr"); // Replace with your public key
+
+const poTableBody = document.querySelector('#poTable tbody');
+const modal = document.getElementById('modal');
+const openModalBtn = document.getElementById('openModalBtn');
+const closeModalBtn = document.getElementById('close');
+const poForm = document.getElementById('poForm');
+
+//button to filter POs by issuance date
+const filterDateInput = document.getElementById('filterDate');
+const filterBtn = document.getElementById('filterBtn');
+const clearFilterBtn = document.getElementById('clearFilterBtn');
+
+filterBtn.addEventListener('click', () => {
+  const filterDate = filterDateInput.value;
+  if (!filterDate) {
+    alert('Please select a date to filter.');
+    return;
+  }
+
+  const rows = poTableBody.querySelectorAll('tr');
+  rows.forEach(row => {
+    const issuanceDate = row.cells[2].textContent.trim();
+    if (issuanceDate === filterDate) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+});
+
+
+
+openModalBtn.addEventListener('click', () => {
+  modal.style.display = 'block';
+  modal.focus();
+});
+
+function closeModal() {
+  modal.style.display = 'none';
+  poForm.reset();
+}
+
+closeModalBtn.addEventListener('click', closeModal);
+window.addEventListener('click', (e) => {
+  if (e.target === modal) closeModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.style.display === 'block') closeModal();
+});
+
+// Load POs from server API
+async function loadPOs() {
+  poTableBody.innerHTML = '';
+  try {
+    const res = await fetch('/api/pos');
+    const pos = await res.json();
+
+    pos.forEach(po => {
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-email', po.email || '');
+      tr.innerHTML = `
+        <td>${po.po}</td>
+        <td>${po.name}</td>
+        <td>${po.issuance}</td>
+        <td>${po.plate}</td>
+        <td>${po.plannedDate}</td>
+        <td>${po.actualDate || ''}</td>
+      `;
+      poTableBody.appendChild(tr);
+    });
+  } catch (error) {
+    console.error('Failed to load PO data:', error);
+  }
+}
+
+poForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const po = document.getElementById('po').value.trim();
+  const nameSelect = document.getElementById('name');
+  const name = nameSelect.value;
+  const email = nameSelect.options[nameSelect.selectedIndex].getAttribute('data-email');
+  const issuance = document.getElementById('issuance').value;
+  const plate = document.getElementById('plate').value.trim();
+  const plannedReturnDate = document.getElementById('plannedReturnDate').value;
+  const actualReturnDate = document.getElementById('actualReturnDate').value;
+
+  const newPO = {
+    po,
+    name,
+    email,
+    issuance,
+    plate,
+    plannedDate: plannedReturnDate,
+    actualDate: actualReturnDate,
+    status: actualReturnDate ? 'Returned' : 'Pending'
+  };
+
+  try {
+    const res = await fetch('/api/pos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPO)
+    });
+
+    if (!res.ok) throw new Error('Failed to save PO');
+
+    await loadPOs();
+
+    // Date check before sending email
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to midnight for comparison
+
+    const plannedDate = new Date(plannedReturnDate);
+    plannedDate.setHours(0, 0, 0, 0);
+
+    if (plannedDate < today) {
+      // Only send email if planned date is BEFORE today (overdue)
+      emailjs.send('service_ag09nqo', 'template_aj6qf3v', {
+        to_name: name,
+        to_email: email,
+        po_number: po,
+        planned_return_date: plannedReturnDate,
+      }).then(() => {
+        console.log('Email sent successfully!');
+      }).catch((error) => {
+        console.error('Failed to send email:', error);
+      });
+    } else {
+      console.log('Planned return date is not overdue — no immediate email sent.');
+    }
+
+    closeModal();
+  } catch (err) {
+    alert('Error saving PO: ' + err.message);
+  }
+});
+
+// On page load
+window.addEventListener('load', () => {
+  loadPOs();
+});
+
+  </script>
+</body>
+</html>
