@@ -83,7 +83,7 @@ function checkPendingPOsAndSendEmails() {
 
 
 // Schedule: every day at 9 AM
-cron.schedule('0 9 * * *', () => {
+cron.schedule('0 7 * * *', () => {
   console.log('Running daily PO check...');
   checkPendingPOsAndSendEmails();
 });
